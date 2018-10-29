@@ -2,7 +2,6 @@ package au.prospa;
 
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.InputStreamResource;
 
 import com.jcraft.jsch.Channel;
@@ -23,7 +22,7 @@ public class FtpDownloader {
 		this.password = password;
 	}
 
-	public /*InputStreamResource*/ byte[] download(String path) throws Exception {
+	public InputStreamResource download(String path) throws Exception {
 		JSch jsch = new JSch();
 		Session session = null;
 		InputStream stream = null;
@@ -42,8 +41,8 @@ public class FtpDownloader {
 			stream = sftpChannel.get(path);
 			System.out.println("Downloading "+ path +" as " + user);
 			
-			return IOUtils.toByteArray(stream);
-			//return new InputStreamResource(stream);
+			//return IOUtils.toByteArray(stream);
+			return new InputStreamResource(stream);
 
 		} finally {
 			System.out.println("Finished downloading "+ path);
