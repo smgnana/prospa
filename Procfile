@@ -1,0 +1,1 @@
+web: java -Dserver.port=$PORT -jar target/prospa-ftp-heroku-0.0.1-SNAPSHOT.jar
