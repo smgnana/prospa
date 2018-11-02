@@ -1,4 +1,4 @@
-package au.prospa;
+package au.prospa.ftp;
 
 import java.io.InputStream;
 

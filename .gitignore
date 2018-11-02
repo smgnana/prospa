@@ -3,3 +3,5 @@
 /.settings
 .classpath
 .project
+/test-files/
+/src/main/resources/application-local.properties

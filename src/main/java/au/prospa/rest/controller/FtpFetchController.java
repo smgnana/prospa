@@ -2,19 +2,25 @@ package au.prospa.rest.controller;
 
 import java.util.Base64;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import au.prospa.FtpDownloader;
+import au.prospa.ftp.FtpDownloader;
+import au.prospa.service.FtpToS3Migrator;
 
 @RestController
 public class FtpFetchController {
+	
+	@Autowired
+	public FtpToS3Migrator migrator;
 
 	@GetMapping(value = "/file/wav/{file}", produces = "audio/wav")
 	public @ResponseBody ResponseEntity<InputStreamResource> getWavFile(@PathVariable("file") String filePath,
@@ -39,5 +45,10 @@ public class FtpFetchController {
 
 	private String base64Decode(String encoded) {
 		return new String(Base64.getDecoder().decode(encoded));
+	}
+	
+	@GetMapping("/job/ftp-to-s3/")
+	public void startFtpToS3(){
+		migrator.migrate();
 	}
 }
