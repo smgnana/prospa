@@ -77,9 +77,14 @@ public class SalesforceCallRecordReader {
                 final JsonNode queryResults = mapper.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
                 
                 List<CallRecord> records = new ArrayList<>();
+                List<String> recordIds = new ArrayList<>();
                 for (JsonNode recordNode : queryResults.findPath("records")){
-                	records.add(mapper.treeToValue(recordNode, CallRecord.class));
+                	CallRecord record = mapper.treeToValue(recordNode, CallRecord.class);
+					records.add(record);
+                	recordIds.add(record.id);
                 }
+                
+                logger.info(records.size() + " was found to process: " + recordIds);
 
                 return records;
                 

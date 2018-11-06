@@ -2,14 +2,12 @@ package au.prospa.service.salesforce;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
@@ -30,7 +28,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import au.prospa.domain.CallRecord;
-import au.prospa.ftp.FtpBatchDownloader;
 
 @Service
 public class SalesforceCallRecordUpdater {
@@ -74,7 +71,7 @@ public class SalesforceCallRecordUpdater {
 
                 // query contacts
                 final URIBuilder builder = new URIBuilder(instanceUrl);
-                builder.setPath("/services/data/v44.0/composite/batch");//.setParameter("q", "SELECT Id, NVM_URL__c FROM Call_Record__c");
+                builder.setPath("/services/data/v44.0/composite/batch");
                 
                 JsonNode node = mapper.createObjectNode();
                 ArrayNode batchRequests = ((ObjectNode) node).putArray("batchRequests");
@@ -94,20 +91,24 @@ public class SalesforceCallRecordUpdater {
 					
 					batchRequests.add(callRecordRequest);
 				}
+                
+                if (batchRequests.size() <= 0){
+                	logger.warn("No records to update in Salesforce at the end of the file upload");
+                	return;
+                }
 
                 final HttpPost post = new HttpPost(builder.build());
                 post.setHeader("Authorization", "Bearer " + accessToken);
                 post.setHeader("Accept", "application/json");
                 post.setHeader("Content-type", "application/json");
                 
-                logger.info("Updating S3 URLs: " + node.toString());
+                logger.info("Updating Salesforce objects with S3 URLs: " + node.toString());
                 
                 StringEntity entity = new StringEntity(node.toString());
                 post.setEntity(entity);
 
                 CloseableHttpResponse response = httpclient.execute(post);
-                System.out.println(response);
-                System.out.println(EntityUtils.toString(response.getEntity()));
+                logger.info("Updated Salesforce objects: " + response + " Detail: " + EntityUtils.toString(response.getEntity()));
 
                 
             } else {

@@ -42,6 +42,6 @@ public class FtpToS3Migrator {
 		// Update S3 URL in Salesforce
 		salesforceCallRecordUpdater.update(callRecords);
 
-		System.out.println(callRecords);
+		//System.out.println(callRecords);
 	}
 }
