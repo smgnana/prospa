@@ -1,8 +1,10 @@
 package au.prospa.service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import au.prospa.domain.CallRecord;
@@ -28,7 +30,8 @@ public class FtpToS3Migrator {
 		this.salesforceCallRecordUpdater = salesforceCallRecordUpdater;
 	}
 
-	public void migrate() {
+	@Async
+	public CompletableFuture<Void> migrate() {
 		// Get data from SF
 		List<CallRecord> callRecords = salesforceCallRecordReader.getAllNew();
 
@@ -39,9 +42,13 @@ public class FtpToS3Migrator {
 			// Upload to S3
 			s3Uploader.uploadFile(callRecord, file);
 		}
+		
+		ftpBatchDownloader.close();
+		
 		// Update S3 URL in Salesforce
 		salesforceCallRecordUpdater.update(callRecords);
 
 		//System.out.println(callRecords);
+		return CompletableFuture.completedFuture(null);
 	}
 }

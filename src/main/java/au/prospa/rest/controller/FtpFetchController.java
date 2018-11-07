@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,7 +47,7 @@ public class FtpFetchController {
 		return new String(Base64.getDecoder().decode(encoded));
 	}
 	
-	@GetMapping("/job/ftp-to-s3/")
+	@PostMapping("/job/ftp-to-s3/")
 	public void startFtpToS3(){
 		migrator.migrate();
 	}
