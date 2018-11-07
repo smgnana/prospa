@@ -67,7 +67,7 @@ public class SalesforceCallRecordReader {
 
                 // query contacts
                 final URIBuilder builder = new URIBuilder(instanceUrl);
-                builder.setPath("/services/data/v44.0/query/").setParameter("q", "SELECT Id, NVM_URL__c FROM Call_Record__c");
+                builder.setPath("/services/data/v44.0/query/").setParameter("q", "SELECT Id, NVM_URL__c, Created_Date__c FROM Call_Record__c");
 
                 final HttpGet get = new HttpGet(builder.build());
                 get.setHeader("Authorization", "Bearer " + accessToken);

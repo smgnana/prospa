@@ -52,6 +52,8 @@ public class S3Uploader {
 			record.s3Url = s3Url;
 
 		} catch (AmazonServiceException ase) {
+			record.uploadError = "AmazonServiceException: " + ase.getMessage() + " AWS Error Code:   " + ase.getErrorCode();
+			
 			logger.info("Caught an AmazonServiceException from PUT requests, rejected reasons:");
 			logger.info("Error Message:    " + ase.getMessage());
 			logger.info("HTTP Status Code: " + ase.getStatusCode());
@@ -59,6 +61,8 @@ public class S3Uploader {
 			logger.info("Error Type:       " + ase.getErrorType());
 			logger.info("Request ID:       " + ase.getRequestId());
 		} catch (AmazonClientException ace) {
+			record.uploadError = "AmazonClientException: " + ace.getMessage();
+			
 			logger.info("Caught an AmazonClientException: ");
 			logger.info("Error Message: " + ace.getMessage());
 		}

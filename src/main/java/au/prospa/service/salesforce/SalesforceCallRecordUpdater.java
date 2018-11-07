@@ -61,7 +61,6 @@ public class SalesforceCallRecordUpdater {
             
             if (loginResponse.getStatusLine().getStatusCode() == 200){
             	
-            	
                 // parse
                 final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -77,9 +76,6 @@ public class SalesforceCallRecordUpdater {
                 ArrayNode batchRequests = ((ObjectNode) node).putArray("batchRequests");
                 
                 for (CallRecord callRecord : callRecords) {
-                	if (callRecord.s3Url == null){
-                		continue;
-                	}
                 	
 					JsonNode callRecordRequest = mapper.createObjectNode();
 					((ObjectNode) callRecordRequest)
@@ -87,7 +83,16 @@ public class SalesforceCallRecordUpdater {
 						.put("url", "v44.0/sobjects/Call_Record__c/"+callRecord.id);
 					
 					JsonNode richInput = ((ObjectNode) callRecordRequest).putObject("richInput");
-					((ObjectNode) richInput).put("AWS_S3_URL__c", callRecord.s3Url.toString());
+					
+                	if (callRecord.s3Url != null){
+                		((ObjectNode) richInput).put("Status__c", "Completed");
+                		((ObjectNode) richInput).put("AWS_S3_URL__c", callRecord.s3Url.toString());
+                	}
+                	
+                	if (callRecord.uploadError != null){
+                		((ObjectNode) richInput).put("Status__c", "Failed");
+                		((ObjectNode) richInput).put("Upload_Error__c", callRecord.uploadError);
+                	}
 					
 					batchRequests.add(callRecordRequest);
 				}
@@ -109,7 +114,6 @@ public class SalesforceCallRecordUpdater {
 
                 CloseableHttpResponse response = httpclient.execute(post);
                 logger.info("Updated Salesforce objects: " + response + " Detail: " + EntityUtils.toString(response.getEntity()));
-
                 
             } else {
             	throw new RuntimeException("Issue in Login to Salesforce. Response: " + loginResponse);

@@ -17,7 +17,6 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import com.jcraft.jsch.ChannelSftp.LsEntry;
 
 import au.prospa.domain.CallRecord;
 
@@ -74,6 +73,13 @@ public class FtpBatchDownloader implements Closeable {
 			
 			if (!record.nvmLinkExists()){
 				logger.warn("No NVM link for record: " + record);
+				record.uploadError = "No NVM link found";
+				return null;
+			}
+			
+			if (!record.createdDateExists()){
+				logger.warn("No Created Date for record: " + record);
+				record.uploadError = "No Created Date link found";
 				return null;
 			}
 			
@@ -108,9 +114,12 @@ public class FtpBatchDownloader implements Closeable {
 	}
 	
 	private ChannelSftp.LsEntry check(ChannelSftp sftpChannel, CallRecord record) throws SftpException {
+		@SuppressWarnings("unchecked")
 		Vector<ChannelSftp.LsEntry> lsEntries = sftpChannel.ls(record.getFtpSearchString());
+		
 		if (lsEntries.isEmpty()){
 			logger.warn("FTP file not found for NVM link in record: " + record);
+			record.uploadError = "FTP file not found for NVM link";
 			return null;
 		}
 		
