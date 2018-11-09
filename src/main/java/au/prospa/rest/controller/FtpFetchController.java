@@ -1,5 +1,6 @@
 package au.prospa.rest.controller;
 
+import java.io.IOException;
 import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import au.prospa.ftp.FtpDownloader;
 import au.prospa.service.FtpToS3Migrator;
@@ -21,6 +26,9 @@ public class FtpFetchController {
 	
 	@Autowired
 	public FtpToS3Migrator migrator;
+	
+	@Autowired
+	public ObjectMapper mapper;
 
 	@GetMapping(value = "/file/wav/{file}", produces = "audio/wav")
 	public @ResponseBody ResponseEntity<InputStreamResource> getWavFile(@PathVariable("file") String filePath,
@@ -47,8 +55,11 @@ public class FtpFetchController {
 		return new String(Base64.getDecoder().decode(encoded));
 	}
 	
-	@PostMapping("/job/ftp-to-s3/")
-	public void startFtpToS3(){
-		migrator.migrate();
+	@PostMapping(value = "/job/ftp-to-s3/", consumes = "application/json")
+	public void startFtpToS3(@RequestBody String postPayload) throws IOException{
+		JsonNode node = mapper.readValue(postPayload, JsonNode.class);
+		String reportId = node.get("report_id").asText();
+		
+		migrator.migrate(reportId);
 	}
 }
