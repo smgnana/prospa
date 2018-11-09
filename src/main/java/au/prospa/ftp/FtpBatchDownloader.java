@@ -133,8 +133,12 @@ public class FtpBatchDownloader implements Closeable {
 	@Override
 	public void close() {
 		try {
-			sftpChannel.exit();
-			session.disconnect();
+			if (sftpChannel != null)
+				sftpChannel.exit();
+			
+			if (session != null)
+				session.disconnect();
+			
 		} catch (Exception e) {
 			logger.warn("Issues doing FTP download cleanup. Ignoring", e);
 		}

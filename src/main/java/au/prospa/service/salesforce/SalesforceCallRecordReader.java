@@ -36,7 +36,7 @@ public class SalesforceCallRecordReader extends SalesforceAuthService {
 		super(username, password, consumerKey, consumerSecret, tokenUrl);
 	}
 
-    public List<CallRecord> getAllNew() {
+    public List<CallRecord> getAllPending() {
     	try {
     		List<CallRecord> records = new ArrayList<>();
     		
@@ -47,7 +47,7 @@ public class SalesforceCallRecordReader extends SalesforceAuthService {
     		
             // query contacts
             final URIBuilder builder = new URIBuilder(auth.instanceUrl);
-            builder.setPath("/services/data/v44.0/query/").setParameter("q", "SELECT Id, NVM_URL__c, Created_Date__c FROM Call_Record__c");
+            builder.setPath("/services/data/v44.0/query/").setParameter("q", "SELECT Id, NVM_URL__c, Created_Date__c FROM Call_Record__c WHERE Status__c = 'Pending'");
 
             final HttpGet get = new HttpGet(builder.build());
             get.setHeader("Authorization", "Bearer " + auth.accessToken);

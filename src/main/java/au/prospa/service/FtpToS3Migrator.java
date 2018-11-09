@@ -45,7 +45,7 @@ public class FtpToS3Migrator {
 		UploadResult result = null;
 		try {
 			// Get data from SF
-			List<CallRecord> callRecords = salesforceCallRecordReader.getAllNew();
+			List<CallRecord> callRecords = salesforceCallRecordReader.getAllPending();
 
 			for (CallRecord callRecord : callRecords) {
 				// Download from FTP

@@ -42,6 +42,11 @@ public class SalesforceCallRecordUpdater extends SalesforceAuthService {
 		try {
 			UploadResult result = new UploadResult();
 			
+			if (callRecords.isEmpty()){
+				logger.info("No Call Records were found to process");
+				return result;
+			}
+			
 			Auth auth = login();
 			if (auth.isError()){
 				result.errorMessage = "Issue when logging into Salesforce when updating Call Records";
