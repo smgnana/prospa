@@ -33,7 +33,7 @@ public class FtpChecker {
 	DateTimeFormatter df2 = DateTimeFormat.forPattern("yyyy/MM/dd");
 	
 	public static void main(String[] args) throws Exception {
-		new FtpChecker(args[0], args[1], args[2]).find(new File("Prospa_TestData.csv"), new File("out.csv"));
+		new FtpChecker(args[0], args[1], args[2]).find(new File("Input.csv"), new File("Output.csv"));
 	}
 
 	public FtpChecker(String server, String user, String password) {
@@ -43,6 +43,7 @@ public class FtpChecker {
 	}
 
 	public void find(File source, File destination) throws Exception {
+		System.out.println(source.getAbsolutePath());
 		JSch jsch = new JSch();
 		Session session = null;
 		ChannelSftp sftpChannel = null;
@@ -65,18 +66,23 @@ public class FtpChecker {
 			in = new FileReader(source);
 			Iterable<CSVRecord> records = CSVFormat.EXCEL.withHeader().parse(in);
 			
+			int count = 0;
+			
 			for (CSVRecord record : records) {
+				count=count+1;
 			    String sfId = record.get("Call Record: ID");
-			    String createdDate = record.get("Call Record: Created Date");
-			    String url = record.get("URL");
+			    String createdDate = record.get("Created Date");
+			    String url = record.get("NVM URL");
 			    //System.out.println(sfId + createdDate + url);
 			    
 			    String path = resolvePath(createdDate, url);
-			    System.out.println(path);
+			    
 			    
 			    FtpResult found = check(sftpChannel, path);
 			    csvPrinter.printRecord(sfId, createdDate, url, found.found, found.fileName, found.size, found.queryString);
+			    System.out.println(path+"Checking file no ==>"+count+"Salesforce Id ==>"+sfId);
 			}
+			System.out.println("Completed...");
 
 		} finally {
 			in.close();
